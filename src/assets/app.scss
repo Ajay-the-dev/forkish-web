@@ -1,0 +1,25 @@
+@use "styles/tokens" as *;
+
+// Bootstrap is kept for its reboot and form basics, themed with our tokens.
+@use "bootstrap/scss/bootstrap" with (
+  $primary: $brand-600,
+  $success: $success,
+  $warning: $warning,
+  $danger: $danger,
+  $info: $info,
+  $body-bg: $page-bg,
+  $body-color: $ink-900,
+  $border-color: $border,
+  $font-family-sans-serif: $font-sans,
+  $border-radius: $radius-sm,
+  $border-radius-lg: $radius,
+  $link-decoration: none
+);
+
+@use "styles/base";
+@use "styles/components";
+@use "styles/shell";
+@use "styles/pos";
+@use "styles/tables";
+@use "styles/kitchen";
+@use "styles/print";

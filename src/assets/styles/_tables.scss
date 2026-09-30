@@ -1,0 +1,162 @@
+@use "tokens" as *;
+
+// Floor plan: status summary cards and table tiles grouped by zone.
+// Each status sets --tone once; tiles derive tints from it with color-mix().
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+
+  @include up(lg) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $surface;
+  box-shadow: $shadow-xs;
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius;
+    background: color-mix(in srgb, var(--tone) 12%, transparent);
+    color: var(--tone);
+    font-size: 1.125rem;
+  }
+
+  &__label {
+    display: block;
+    color: $ink-500;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__value {
+    display: block;
+    color: $ink-900;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.zone {
+  margin-bottom: 1.75rem;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.875rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: $ink-900;
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  &__count {
+    color: $ink-500;
+    font-size: 0.8125rem;
+  }
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.875rem;
+}
+
+.table-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $surface;
+  text-align: left;
+  box-shadow: $shadow-xs;
+  transition: transform 0.2s $ease-out, box-shadow 0.2s, border-color 0.2s;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--tone);
+  }
+
+  &__name {
+    color: $ink-900;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &__visual {
+    display: grid;
+    place-items: center;
+    height: 4rem;
+    border: 1px dashed color-mix(in srgb, var(--tone) 35%, transparent);
+    border-radius: $radius;
+    background: color-mix(in srgb, var(--tone) 8%, transparent);
+    color: var(--tone);
+    font-size: 1.5rem;
+    transition: background 0.2s;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: color-mix(in srgb, var(--tone) 70%, #000);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--tone) 40%, $border);
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+
+    .table-tile__visual {
+      background: color-mix(in srgb, var(--tone) 18%, transparent);
+    }
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+@each $name, $c in $table-status-colors {
+  .table-tile--#{$name},
+  .stat-card--#{$name} {
+    --tone: #{$c};
+  }
+}

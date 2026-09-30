@@ -1,0 +1,103 @@
+// Printed bill (components/PrintBill.vue). Sized for 80mm thermal paper; also fine on A4.
+.bill {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 4mm;
+  }
+
+  body > :not(.bill) {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .bill {
+    display: block;
+    width: 72mm;
+    color: #000;
+    font: 12px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    &__head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 2mm;
+      border-bottom: 1px dashed #000;
+    }
+
+    &__brand {
+      font-size: 15px;
+    }
+
+    &__lines {
+      width: 100%;
+      margin: 2mm 0;
+      border-collapse: collapse;
+
+      th {
+        border-bottom: 1px dashed #000;
+        font-weight: 700;
+        text-align: left;
+      }
+
+      th, td {
+        padding: 0.5mm 0;
+        vertical-align: top;
+      }
+
+      th:not(:first-child), td:not(:first-child) {
+        padding-left: 2mm;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      small {
+        display: block;
+        font-size: 10px;
+      }
+    }
+
+    &__totals {
+      margin: 0;
+      padding-top: 1mm;
+      border-top: 1px dashed #000;
+
+      div {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      dt, dd {
+        margin: 0;
+        font-weight: 400;
+      }
+    }
+
+    &__grand {
+      margin-top: 1mm;
+      font-size: 14px;
+
+      dt, dd {
+        font-weight: 700 !important;
+      }
+    }
+
+    &__notes {
+      margin: 2mm 0 0;
+    }
+
+    &__foot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 3mm;
+      padding-top: 2mm;
+      border-top: 1px dashed #000;
+    }
+  }
+}
