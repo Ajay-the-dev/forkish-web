@@ -38,9 +38,15 @@ export const usePosStore = defineStore('pos', {
         this.tables = await api.tables()
       } catch (e) { this.error = e.response?.data?.message || e.message }
     },
+    // lastOrder is a copy; re-read it so payments/status changes made elsewhere (Tables, Kitchen) show here.
+    async refreshLastOrder() {
+      if (!this.lastOrder) return
+      try { this.lastOrder = await api.order(this.lastOrder.id) } catch { /* keep the copy we have */ }
+    },
     async charge(method) {
       const o = this.lastOrder
-      this.lastOrder = await api.pay(o.id, [{ method, amount: o.total }])
+      const due = Math.max(o.total - (o.paid ?? 0), 0)
+      this.lastOrder = due > 0 ? await api.pay(o.id, [{ method, amount: due }]) : await api.order(o.id)
     },
   },
 })

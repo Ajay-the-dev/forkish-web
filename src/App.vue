@@ -74,6 +74,8 @@ const links = [
   { to: '/pos', label: 'POS', icon: 'receipt' },
   { to: '/tables', label: 'Tables', icon: 'grid' },
   { to: '/kitchen', label: 'Kitchen', icon: 'chef' },
+  { to: '/history', label: 'History', icon: 'calendar' },
+  { to: '/bill-editor', label: 'Bill editor', icon: 'printer' },
 ]
 
 // Desktop sidebar collapse state, remembered across reloads.

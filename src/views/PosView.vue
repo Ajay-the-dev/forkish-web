@@ -16,8 +16,8 @@
         </label>
       </div>
 
-      <div v-if="!q" class="chip-row">
-        <button v-for="c in pos.menu.categories" :key="c.id" class="chip-btn" :class="{ 'is-active': cat === c.id }"
+      <div v-if="!q" class="">
+        <button v-for="c in pos.menu.categories" :key="c.id" class="chip-btn m-1" :class="{ 'is-active': cat === c.id }"
           @click="cat = c.id">
           {{ c.name }}<span class="chip-btn__count">{{ countIn(c.id) }}</span>
         </button>
@@ -30,7 +30,11 @@
           :disabled="!i.is_available" @click="pos.add(i)">
           <span v-if="qty[i.id]" :key="qty[i.id]" class="menu-card__qty">{{ qty[i.id] }}</span>
           <span v-if="!i.is_available" class="menu-card__soldout">Sold out</span>
-          <span class="menu-card__thumb">{{ initials(i.name) }}</span>
+          <span class="menu-card__thumb">
+            {{ initials(i.name) }}
+            <img v-if="i.image && !brokenImg[i.id]" :src="i.image" :alt="i.name" loading="lazy"
+              @error="brokenImg[i.id] = true" />
+          </span>
           <span class="menu-card__name">{{ i.name }}</span>
           <span class="menu-card__footer">
             <span class="menu-card__price">{{ money(i.price) }}</span>
@@ -128,18 +132,24 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import AppIcon from '../components/AppIcon.vue'
 import PrintBill from '../components/PrintBill.vue'
 import { usePosStore } from '../stores/pos'
 import { money, taxLabel, taxRate } from '../lib/money'
+import { printBill as printWhenReady } from '../lib/print'
 
 const pos = usePosStore()
 const cat = ref(null)
 const q = ref('')
 const types = [{ v: 'dine_in', l: 'Dine-in' }, { v: 'takeaway', l: 'Takeaway' }, { v: 'delivery', l: 'Delivery' }]
 
-onMounted(async () => { await pos.load(); cat.value ??= pos.menu.categories[0]?.id })
+let timer
+onMounted(async () => {
+  await pos.load(); cat.value ??= pos.menu.categories[0]?.id
+  pos.refreshLastOrder(); timer = setInterval(() => pos.refreshLastOrder(), 5000)
+})
+onUnmounted(() => clearInterval(timer))
 watch(() => pos.menu.categories, (c) => { cat.value ??= c[0]?.id })
 
 const items = computed(() => {
@@ -151,15 +161,18 @@ const items = computed(() => {
 const countIn = (id) => pos.menu.items.filter((i) => i.category_id === id).length
 const qty = computed(() => Object.fromEntries(pos.cart.map((l) => [l.menu_item_id, l.quantity])))
 const itemCount = computed(() => pos.cart.reduce((n, l) => n + l.quantity, 0))
-const freeTables = computed(() => pos.tables.filter((t) => t.status === 'available'))
+// Keep the chosen table listed even when occupied, so "Order more" from the floor plan works.
+const freeTables = computed(() => pos.tables.filter((t) => t.status === 'available' || t.id === pos.tableId))
 const table = computed(() => pos.type === 'dine_in' && pos.tables.find((t) => t.id === pos.tableId))
 const typeLabel = computed(() => types.find((t) => t.v === pos.type)?.l)
 const needsTable = computed(() => pos.cart.length && pos.type === 'dine_in' && !pos.tableId)
 const canSend = computed(() => pos.cart.length && (pos.type !== 'dine_in' || pos.tableId))
 const lastTableName = computed(() => pos.tables.find((t) => t.id === pos.lastOrder?.table_id)?.name ?? '')
-const printBill = () => window.print()
+const printBill = async () => { await pos.refreshLastOrder(); await printWhenReady() }
 
 // Thumbnail styling: 6 gradient tones (see $tones in _tokens.scss) and name initials.
 const tone = (categoryId) => (Number(categoryId) % 6) + 1
+// Missing photos fall back to the gradient + initials.
+const brokenImg = reactive({})
 const initials = (name) => name.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 </script>

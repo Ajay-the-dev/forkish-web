@@ -25,7 +25,14 @@
                 <span>{{ i.name }}<em v-if="i.notes" class="ticket__note">{{ i.notes }}</em></span>
               </li>
             </ul>
+            <p v-if="o.notes" class="ticket__order-note"><AppIcon name="note" />{{ o.notes }}</p>
             <button class="ticket__action" @click="advance(o, c.next)"><AppIcon :name="c.icon" />{{ c.action }}</button>
+            <button v-if="c.status === 'CONFIRMED'" class="ticket__minor ticket__minor--danger" @click="cancel(o)">
+              <AppIcon name="ban" />Cancel order
+            </button>
+            <button v-else-if="o.type === 'dine_in'" class="ticket__minor" @click="toTakeaway(o)">
+              <AppIcon name="cart" />Make takeaway
+            </button>
           </article>
         </TransitionGroup>
 
@@ -52,6 +59,22 @@ const cols = [
 const by = (s) => orders.value.filter((o) => o.status === s)
 const refresh = async () => { orders.value = await api.orders() }
 const advance = async (o, next) => { await api.setStatus(o.id, next); refresh() }
+
+// Only offered before cooking starts (New column).
+const cancel = async (o) => {
+  const paid = o.payment_status && o.payment_status !== 'unpaid'
+  const msg = `Cancel ${o.number}?${paid ? '\n\nThis order has a payment recorded; refund it separately.' : ''}`
+  if (!window.confirm(msg)) return
+  try { await api.setStatus(o.id, 'CANCELLED') } catch (e) { window.alert(e.response?.data?.message || e.message) }
+  refresh()
+}
+
+// Customer wants it packed: the ticket shows "takeaway" so it goes out boxed. It stays on the table's bill.
+const toTakeaway = async (o) => {
+  if (!window.confirm(`Switch ${o.number} to takeaway?`)) return
+  try { await api.setType(o.id, 'takeaway') } catch (e) { window.alert(e.response?.data?.message || e.message) }
+  refresh()
+}
 
 const now = useNow(15000)
 const mins = (o) => (o.created_at ? Math.floor((now.value - Date.parse(o.created_at)) / 60000) : 0)

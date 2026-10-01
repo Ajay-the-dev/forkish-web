@@ -1,6 +1,122 @@
-// Printed bill (components/PrintBill.vue). Sized for 80mm thermal paper; also fine on A4.
+// Printed bill (components/PrintBill.vue). Width, font and dividers come from the bill
+// template as CSS variables, so the editor preview and the printout share these rules.
 .bill {
   display: none;
+  width: var(--bill-width, 72mm);
+  color: #000;
+  font: var(--bill-size, 12px) / 1.4 var(--bill-font, ui-monospace, monospace);
+
+  &--preview {
+    display: block;
+  }
+
+  &__head {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--bill-align, center);
+    text-align: var(--bill-text, center);
+    padding-bottom: 2mm;
+    border-bottom: 1px var(--bill-rule, dashed) #000;
+  }
+
+  &__logo {
+    max-width: 60%;
+    max-height: 20mm;
+    margin-bottom: 1mm;
+    object-fit: contain;
+  }
+
+  &__brand {
+    font-size: 1.25em;
+  }
+
+  &__multiline {
+    white-space: pre-line;
+  }
+
+  &__title {
+    display: block;
+    padding: 1.5mm 0;
+    border-bottom: 1px var(--bill-rule, dashed) #000;
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--bill-align, center);
+    text-align: var(--bill-text, center);
+    padding: 1.5mm 0;
+    border-bottom: 1px var(--bill-rule, dashed) #000;
+  }
+
+  &__lines {
+    width: 100%;
+    margin: 2mm 0;
+    border-collapse: collapse;
+
+    th {
+      border-bottom: 1px var(--bill-rule, dashed) #000;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 0.5mm 0;
+      vertical-align: top;
+    }
+
+    th:not(:first-child), td:not(:first-child) {
+      padding-left: 2mm;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    small {
+      display: block;
+      font-size: 0.85em;
+    }
+  }
+
+  &__totals {
+    margin: 0;
+    padding-top: 1mm;
+    border-top: 1px var(--bill-rule, dashed) #000;
+
+    div {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    dt, dd {
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+
+  &__grand {
+    margin-top: 1mm;
+    font-size: 1.15em;
+
+    dt, dd {
+      font-weight: 700 !important;
+    }
+  }
+
+  &__notes {
+    margin: 2mm 0 0;
+  }
+
+  &__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: var(--bill-align, center);
+    text-align: var(--bill-text, center);
+    margin-top: 3mm;
+    padding-top: 2mm;
+    border-top: 1px var(--bill-rule, dashed) #000;
+  }
 }
 
 @media print {
@@ -18,86 +134,5 @@
 
   .bill {
     display: block;
-    width: 72mm;
-    color: #000;
-    font: 12px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-
-    &__head {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 2mm;
-      border-bottom: 1px dashed #000;
-    }
-
-    &__brand {
-      font-size: 15px;
-    }
-
-    &__lines {
-      width: 100%;
-      margin: 2mm 0;
-      border-collapse: collapse;
-
-      th {
-        border-bottom: 1px dashed #000;
-        font-weight: 700;
-        text-align: left;
-      }
-
-      th, td {
-        padding: 0.5mm 0;
-        vertical-align: top;
-      }
-
-      th:not(:first-child), td:not(:first-child) {
-        padding-left: 2mm;
-        text-align: right;
-        white-space: nowrap;
-      }
-
-      small {
-        display: block;
-        font-size: 10px;
-      }
-    }
-
-    &__totals {
-      margin: 0;
-      padding-top: 1mm;
-      border-top: 1px dashed #000;
-
-      div {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      dt, dd {
-        margin: 0;
-        font-weight: 400;
-      }
-    }
-
-    &__grand {
-      margin-top: 1mm;
-      font-size: 14px;
-
-      dt, dd {
-        font-weight: 700 !important;
-      }
-    }
-
-    &__notes {
-      margin: 2mm 0 0;
-    }
-
-    &__foot {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 3mm;
-      padding-top: 2mm;
-      border-top: 1px dashed #000;
-    }
   }
 }

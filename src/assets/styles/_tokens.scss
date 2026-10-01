@@ -72,6 +72,7 @@ $order-status-colors: (
   ready: $success,
   served: $info,
   completed: $ink-500,
+  cancelled: $danger,
 );
 
 $payment-status-colors: (

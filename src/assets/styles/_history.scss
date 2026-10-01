@@ -1,0 +1,238 @@
+@use "tokens" as *;
+
+// Order history: date filters, summary cards, and orders grouped by day.
+.history {
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  &__presets {
+    flex-wrap: wrap;
+  }
+
+  &__range {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  &__status {
+    flex: 0 0 auto;
+    width: auto;
+  }
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+
+  span {
+    color: $ink-500;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input {
+    height: 2.5rem;
+    padding: 0 0.625rem;
+    border: 1px solid $border;
+    border-radius: $radius;
+    background: $surface;
+    color: $ink-900;
+    font-size: 0.875rem;
+
+    &:focus {
+      border-color: $brand-400;
+      outline: none;
+      @include focus-ring;
+    }
+  }
+}
+
+.history-day {
+  margin-bottom: 1.5rem;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.625rem;
+  }
+
+  &__title {
+    margin: 0;
+    color: $ink-900;
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  &__meta {
+    color: $ink-500;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.history-list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $surface;
+  box-shadow: $shadow-xs;
+  list-style: none;
+}
+
+.history-row {
+  & + & {
+    border-top: 1px solid $border;
+  }
+
+  &__summary {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.25rem 0.875rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    transition: background 0.15s;
+
+    &:hover {
+      background: $ink-50;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    @include up(md) {
+      grid-template-columns: 3.5rem minmax(0, 1fr) auto 6rem;
+    }
+  }
+
+  &__time {
+    color: $ink-500;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.625rem;
+    min-width: 0;
+    color: $ink-900;
+    font-size: 0.875rem;
+  }
+
+  &__where {
+    color: $ink-500;
+    font-size: 0.8125rem;
+  }
+
+  &__items {
+    flex-basis: 100%;
+    @include truncate;
+    color: $ink-600;
+    font-size: 0.8125rem;
+  }
+
+  &__badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.375rem;
+  }
+
+  &__total {
+    grid-column: 2 / -1;
+    color: $ink-900;
+    font-variant-numeric: tabular-nums;
+
+    @include up(md) {
+      grid-column: auto;
+      text-align: right;
+    }
+  }
+
+  &.is-cancelled &__total {
+    color: $ink-400;
+    text-decoration: line-through;
+  }
+
+  &.is-open &__summary {
+    background: $ink-50;
+  }
+
+  &__detail {
+    padding: 0.25rem 1rem 1rem calc(1rem + 3.5rem + 0.875rem);
+    background: $ink-50;
+
+    @media (max-width: 575.98px) {
+      padding-left: 1rem;
+    }
+  }
+
+  &__notes {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0.5rem 0 0;
+    color: #92400e;
+    font-size: 0.8125rem;
+  }
+
+  &__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    color: $ink-500;
+    font-size: 0.8125rem;
+  }
+}
+
+.history-items {
+  width: 100%;
+  max-width: 32rem;
+  font-size: 0.875rem;
+
+  td {
+    padding: 0.1875rem 0;
+    color: $ink-800;
+    vertical-align: top;
+  }
+
+  &__qty {
+    width: 2.5rem;
+    color: $ink-500;
+    font-weight: 700;
+  }
+
+  &__amt {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__note {
+    display: block;
+    color: $ink-500;
+    font-size: 0.75rem;
+  }
+}
