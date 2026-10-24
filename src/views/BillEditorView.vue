@@ -86,10 +86,12 @@
       <div class="bill-editor__bar">
         <button type="button" class="btn-soft" @click="resetDefaults">Reset to default</button>
         <button type="button" class="btn-soft" :disabled="!dirty" @click="discard">Discard changes</button>
-        <button type="submit" class="btn-cta bill-editor__save" :disabled="!dirty || saving">
-          <AppIcon name="check" />{{ saving ? 'Saving…' : dirty ? 'Save template' : 'Saved' }}
+        <button type="submit" class="btn-cta bill-editor__save" :disabled="!dirty || saving"
+          :title="auth.can('settings.update') ? null : 'Saving needs manager approval'">
+          <AppIcon :name="auth.can('settings.update') ? 'check' : 'shield'" />{{ saving ? 'Saving…' : dirty ? 'Save template' : 'Saved' }}
         </button>
       </div>
+      <p v-if="saveError" class="form-error" role="alert">{{ saveError }}</p>
     </form>
 
     <aside class="bill-editor__preview">
@@ -113,6 +115,8 @@ import AppIcon from '../components/AppIcon.vue'
 import PrintBill from '../components/PrintBill.vue'
 import { PAPERS, defaultTemplate, sampleOrder, withDefaults } from '../lib/billTemplate'
 import { useBillStore } from '../stores/bill'
+import { useAuthStore } from '../stores/auth'
+import { errorMessage } from '../lib/api'
 import { printBill as printWhenReady } from '../lib/print'
 
 const store = useBillStore()
@@ -124,10 +128,15 @@ onMounted(async () => { await store.load(); draft.value = clone(store.template) 
 watch(() => store.template, (t) => { if (!dirty.value) draft.value = clone(t) })
 
 const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(store.template))
+const auth = useAuthStore()
 const saving = ref(false)
+const saveError = ref('')
 const save = async () => {
   saving.value = true
-  try { await store.save(draft.value); draft.value = clone(store.template) } finally { saving.value = false }
+  saveError.value = ''
+  try { await store.save(draft.value); draft.value = clone(store.template) }
+  catch (e) { saveError.value = errorMessage(e) ?? '' } // null: approval dialog was dismissed
+  finally { saving.value = false }
 }
 const discard = () => { draft.value = clone(store.template) }
 const resetDefaults = () => {

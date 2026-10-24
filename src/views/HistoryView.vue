@@ -20,6 +20,8 @@
         <option value="COMPLETED">Completed</option>
         <option value="open">Open</option>
         <option value="CANCELLED">Cancelled</option>
+        <option value="HELD">On hold</option>
+        <option value="MERGED">Merged</option>
       </select>
     </div>
 
@@ -53,10 +55,14 @@
               <span class="badge-soft" :class="`badge-soft--${o.status.toLowerCase()}`">{{ o.status }}</span>
               <span class="badge-soft" :class="`badge-soft--${o.payment_status}`">{{ o.payment_status }}</span>
             </span>
-            <strong class="history-row__total">{{ money(o.total) }}</strong>
+            <strong class="history-row__total nowrap">{{ money(o.total) }}</strong>
           </button>
 
           <div v-if="openId === o.id" class="history-row__detail">
+            <div class="history-row__detail-badges">
+              <span class="badge-soft" :class="`badge-soft--${o.status.toLowerCase()}`">{{ o.status }}</span>
+              <span class="badge-soft" :class="`badge-soft--${o.payment_status}`">{{ o.payment_status }}</span>
+            </div>
             <table class="history-items">
               <tbody>
                 <tr v-for="(i, k) in o.items ?? []" :key="k">
@@ -134,7 +140,8 @@ const filtered = computed(() => {
     .sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''))
 })
 
-const counts = (o) => o.status !== 'CANCELLED'
+// Sales only: held carts aren't placed yet, and merged bills live on in the order they joined.
+const counts = (o) => !['CANCELLED', 'HELD', 'MERGED'].includes(o.status)
 const groups = computed(() => {
   const by = {}
   for (const o of filtered.value) (by[localDay(o.created_at)] ??= []).push(o)
@@ -150,7 +157,7 @@ const stats = computed(() => {
     { label: 'Orders', value: live.length, icon: 'receipt', tone: 'available' },
     { label: 'Revenue', value: money(revenue), icon: 'cash', tone: 'cleaning' },
     { label: 'Avg. order', value: money(live.length ? Math.round(revenue / live.length) : 0), icon: 'cart', tone: 'reserved' },
-    { label: 'Cancelled', value: filtered.value.length - live.length, icon: 'ban', tone: 'occupied' },
+    { label: 'Cancelled', value: filtered.value.filter((o) => o.status === 'CANCELLED').length, icon: 'ban', tone: 'occupied' },
   ]
 })
 

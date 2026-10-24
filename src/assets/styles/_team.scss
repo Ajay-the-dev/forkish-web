@@ -1,0 +1,368 @@
+@use "sass:color";
+@use "tokens" as *;
+
+// Team screen: members, role permission matrix and approval log.
+
+.team {
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+
+    @media (max-width: 575.98px) {
+      justify-content: center;
+
+      .segmented {
+        margin-inline: auto;
+      }
+    }
+  }
+
+  &__search {
+    flex: 1 1 200px;
+  }
+
+  &__hint {
+    margin: 0 0 1rem;
+    color: $ink-500;
+    font-size: 0.8125rem;
+
+    .app-icon {
+      vertical-align: -0.125em;
+      color: color.adjust($warning, $lightness: -10%);
+    }
+  }
+}
+
+.btn-soft--brand {
+  border-color: transparent;
+  background: $gradient-brand;
+  color: #fff;
+  box-shadow: $shadow-brand;
+
+  &:hover {
+    border-color: transparent;
+    background: $gradient-brand;
+    color: #fff;
+    filter: brightness(1.06);
+  }
+}
+
+.tag {
+  &--danger {
+    background: rgba($danger, 0.1);
+    color: color.adjust($danger, $lightness: -12%);
+  }
+
+  &--success {
+    background: rgba($success, 0.12);
+    color: color.adjust($success, $lightness: -14%);
+  }
+
+  &--warning {
+    background: rgba($warning, 0.14);
+    color: color.adjust($warning, $lightness: -16%);
+  }
+}
+
+// ---- Members ---------------------------------------------------------------------
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.875rem;
+}
+
+.member-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  background: $surface;
+  box-shadow: $shadow-xs;
+
+  &.is-inactive {
+    background: $ink-50;
+
+    .member-card__avatar {
+      background: $ink-300;
+      box-shadow: none;
+    }
+
+    .member-card__name {
+      color: $ink-500;
+    }
+  }
+
+  &__avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: $gradient-brand;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: $shadow-brand;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: $ink-900;
+    font-weight: 700;
+  }
+
+  &__you {
+    padding: 0.0625rem 0.375rem;
+    border-radius: $radius-pill;
+    background: $ink-100;
+    color: $ink-500;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  &__email {
+    display: block;
+    color: $ink-500;
+    font-size: 0.8125rem;
+    @include truncate;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.625rem;
+  }
+
+  &__edit {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    background: $surface;
+    color: $ink-600;
+
+    &:hover {
+      border-color: $brand-200;
+      background: $brand-50;
+      color: $brand-700;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+}
+
+// ---- Per-person permission list (member dialog) ------------------------------------
+.perm-list {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid $border;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+
+    h3 {
+      margin: 0;
+      color: $ink-900;
+      font-size: 0.9375rem;
+      font-weight: 700;
+    }
+  }
+
+  &__group {
+    margin-bottom: 0.75rem;
+  }
+
+  &__group-name {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: $ink-400;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+.perm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  &:hover {
+    background: $ink-50;
+  }
+
+  .form-check-input {
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  &__label {
+    flex: 1;
+    min-width: 0;
+    color: $ink-800;
+    font-size: 0.875rem;
+  }
+}
+
+// ---- Roles matrix --------------------------------------------------------------------
+.roles {
+  &__scroll {
+    overflow-x: auto;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    background: $surface;
+    box-shadow: $shadow-xs;
+  }
+
+  &__table {
+    width: 100%;
+    min-width: 36rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid $ink-100;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      background: $ink-50;
+      color: $ink-600;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+      text-transform: capitalize;
+
+      &:first-child {
+        text-align: left;
+      }
+    }
+
+    tbody th {
+      color: $ink-800;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    td {
+      text-align: center;
+
+      .form-check-input {
+        margin: 0;
+      }
+    }
+
+    tbody tr:last-child > * {
+      border-bottom: 0;
+    }
+  }
+
+  &__group th {
+    padding-top: 1rem !important;
+    color: $ink-400 !important;
+    font-size: 0.6875rem;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__shield {
+    flex-shrink: 0;
+    margin-left: 0.375rem;
+    color: color.adjust($warning, $lightness: -10%);
+    vertical-align: -0.125em;
+  }
+}
+
+// ---- Approval log ---------------------------------------------------------------------
+.approval-log {
+  &__list {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid $border;
+    border-radius: $radius-lg;
+    background: $surface;
+    list-style: none;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+
+    & + & {
+      border-top: 1px solid $ink-100;
+    }
+  }
+
+  &__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: $radius-sm;
+    background: rgba($warning, 0.14);
+    color: color.adjust($warning, $lightness: -14%);
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+
+    strong {
+      display: block;
+      color: $ink-900;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    small {
+      color: $ink-500;
+      font-size: 0.75rem;
+    }
+  }
+
+  &__time {
+    flex-shrink: 0;
+    color: $ink-500;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}

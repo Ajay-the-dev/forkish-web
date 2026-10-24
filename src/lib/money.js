@@ -11,4 +11,8 @@ const fmt = new Intl.NumberFormat(env.VITE_LOCALE || undefined, { style: 'curren
 const decimals = fmt.resolvedOptions().maximumFractionDigits
 
 export const money = (minor) => fmt.format(minor / 10 ** decimals)
+// Price fields: what staff type (12.50) <-> what we store (1250).
+export const toMajor = (minor) => minor / 10 ** decimals
+export const toMinor = (major) => Math.round(Number(major) * 10 ** decimals)
+export const priceStep = 1 / 10 ** decimals
 export const taxOn = (subtotal) => Math.round((subtotal * taxRate) / 100) // must match OrderController

@@ -73,6 +73,8 @@ $order-status-colors: (
   served: $info,
   completed: $ink-500,
   cancelled: $danger,
+  held: $info,
+  merged: $ink-400,
 );
 
 $payment-status-colors: (
@@ -90,6 +92,10 @@ $tones: (
   5: (#38bdf8, #6366f1),
   6: (#f472b6, #e11d48),
 );
+
+// Mobile tab bar height (without the safe-area inset); fixed bars above it offset by this.
+$tabbar-height: 3.75rem;
+$order-bar-height: 4rem; // POS summary + send bar (below lg)
 
 // ---- Helpers ----------------------------------------------------------------
 $breakpoints: (sm: 576px, md: 768px, lg: 992px, xl: 1200px);

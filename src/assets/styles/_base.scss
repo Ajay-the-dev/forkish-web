@@ -24,6 +24,12 @@ button {
   }
 }
 
+// While dragging a resize handle: no text selection, and the resize cursor everywhere.
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
 ::selection {
   background: $brand-100;
   color: $brand-700;

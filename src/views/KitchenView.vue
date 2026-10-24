@@ -1,7 +1,16 @@
 <template>
   <div class="page">
+    <!-- Mobile only: one column at a time, switched here. -->
+    <div class="segmented kds-tabs" role="tablist" aria-label="Ticket status">
+      <button v-for="c in cols" :key="c.status" class="segmented__btn kds-tabs__btn" role="tab"
+        :class="[`kds-tabs__btn--${c.status.toLowerCase()}`, { 'is-active': tab === c.status }]"
+        :aria-selected="tab === c.status" @click="tab = c.status">
+        {{ c.label }}<span class="kds-tabs__count">{{ by(c.status).length }}</span>
+      </button>
+    </div>
     <div class="kds">
-      <section v-for="c in cols" :key="c.status" class="kds-col" :class="`kds-col--${c.status.toLowerCase()}`">
+      <section v-for="c in cols" :key="c.status" class="kds-col"
+        :class="[`kds-col--${c.status.toLowerCase()}`, { 'is-tab-active': tab === c.status }]">
         <header class="kds-col__head">
           <span class="kds-col__dot"></span>
           <h2 class="kds-col__title">{{ c.label }}</h2>
@@ -26,11 +35,12 @@
               </li>
             </ul>
             <p v-if="o.notes" class="ticket__order-note"><AppIcon name="note" />{{ o.notes }}</p>
-            <button class="ticket__action" @click="advance(o, c.next)"><AppIcon :name="c.icon" />{{ c.action }}</button>
-            <button v-if="c.status === 'CONFIRMED'" class="ticket__minor ticket__minor--danger" @click="cancel(o)">
-              <AppIcon name="ban" />Cancel order
+            <button v-if="canMove(c.next)" class="ticket__action" @click="advance(o, c.next)"><AppIcon :name="c.icon" />{{ c.action }}</button>
+            <button v-if="c.status === 'CONFIRMED'" class="ticket__minor ticket__minor--danger" @click="cancel(o)"
+              :title="(auth.can('orders.cancel') || auth.can('kitchen.cancel')) ? null : 'Needs manager approval'">
+              <AppIcon :name="(auth.can('orders.cancel') || auth.can('kitchen.cancel')) ? 'ban' : 'shield'" />Cancel order
             </button>
-            <button v-else-if="o.type === 'dine_in'" class="ticket__minor" @click="toTakeaway(o)">
+            <button v-else-if="o.type === 'dine_in' && auth.can('orders.update')" class="ticket__minor" @click="toTakeaway(o)">
               <AppIcon name="cart" />Make takeaway
             </button>
           </article>
@@ -47,32 +57,41 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import AppIcon from '../components/AppIcon.vue'
-import { api } from '../lib/api'
+import { api, errorMessage } from '../lib/api'
+import { useAuthStore } from '../stores/auth'
 import { useNow } from '../lib/now'
 
 const orders = ref([])
+const tab = ref('CONFIRMED') // active column on mobile
 const cols = [
   { status: 'CONFIRMED', label: 'New', next: 'PREPARING', action: 'Start preparing', icon: 'flame' },
   { status: 'PREPARING', label: 'Preparing', next: 'READY', action: 'Mark ready', icon: 'bell' },
   { status: 'READY', label: 'Ready', next: 'SERVED', action: 'Mark served', icon: 'check' },
 ]
+// Same rules as OrderController::STATUS_PERMISSIONS.
+const auth = useAuthStore()
+const MOVE = { PREPARING: ['kitchen.update'], READY: ['kitchen.update'], SERVED: ['kitchen.update', 'orders.update'] }
+const canMove = (next) => (MOVE[next] ?? []).some((k) => auth.can(k))
 const by = (s) => orders.value.filter((o) => o.status === s)
 const refresh = async () => { orders.value = await api.orders() }
-const advance = async (o, next) => { await api.setStatus(o.id, next); refresh() }
+const advance = async (o, next) => {
+  try { await api.setStatus(o.id, next) } catch (e) { const m = errorMessage(e); if (m) window.alert(m) }
+  refresh()
+}
 
 // Only offered before cooking starts (New column).
 const cancel = async (o) => {
   const paid = o.payment_status && o.payment_status !== 'unpaid'
   const msg = `Cancel ${o.number}?${paid ? '\n\nThis order has a payment recorded; refund it separately.' : ''}`
   if (!window.confirm(msg)) return
-  try { await api.setStatus(o.id, 'CANCELLED') } catch (e) { window.alert(e.response?.data?.message || e.message) }
+  try { await api.setStatus(o.id, 'CANCELLED') } catch (e) { const m = errorMessage(e); if (m) window.alert(m) }
   refresh()
 }
 
 // Customer wants it packed: the ticket shows "takeaway" so it goes out boxed. It stays on the table's bill.
 const toTakeaway = async (o) => {
   if (!window.confirm(`Switch ${o.number} to takeaway?`)) return
-  try { await api.setType(o.id, 'takeaway') } catch (e) { window.alert(e.response?.data?.message || e.message) }
+  try { await api.setType(o.id, 'takeaway') } catch (e) { const m = errorMessage(e); if (m) window.alert(m) }
   refresh()
 }
 

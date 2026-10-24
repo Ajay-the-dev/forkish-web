@@ -1,0 +1,295 @@
+@use "sass:color";
+@use "tokens" as *;
+
+// Dialogs and form controls shared by the Team screen and the manager-approval prompt.
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba($ink-950, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  &__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 24rem;
+    max-height: calc(100dvh - 2rem);
+    padding: 1.25rem;
+    border-radius: $radius-xl;
+    background: $surface;
+    box-shadow: 0 24px 48px -12px rgba($ink-900, 0.35);
+
+    &--wide {
+      max-width: 40rem;
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    > div {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: $ink-900;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  &__subtitle {
+    margin: 0.125rem 0 0;
+    color: $ink-500;
+    font-size: 0.8125rem;
+  }
+
+  &__close {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $ink-400;
+    font-size: 1.125rem;
+
+    &:hover {
+      background: $ink-100;
+      color: $ink-700;
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    margin: 0 -1.25rem;
+    padding: 0 1.25rem;
+    overflow-y: auto;
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  &__primary {
+    justify-content: center;
+    width: auto;
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    font-size: 0.875rem;
+  }
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  color: $ink-700;
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  small {
+    color: $ink-400;
+    font-weight: 500;
+  }
+}
+
+.text-field {
+  width: 100%;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $surface;
+  color: $ink-900;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: $ink-400;
+  }
+
+  &:hover:not(:disabled) {
+    border-color: $ink-300;
+  }
+
+  &:focus {
+    border-color: $brand-400;
+    @include focus-ring;
+  }
+
+  &:disabled {
+    background: $ink-50;
+    color: $ink-400;
+  }
+}
+
+.form-grid {
+  display: grid;
+  gap: 0.875rem;
+
+  > div {
+    min-width: 0;
+  }
+
+  .field {
+    width: 100%;
+  }
+
+  @include up(sm) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.form-error {
+  margin: 0 0 1rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgba($danger, 0.25);
+  border-radius: $radius-sm;
+  background: rgba($danger, 0.08);
+  color: color.adjust($danger, $lightness: -12%);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.form-check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+  color: $ink-600;
+  font-size: 0.8125rem;
+  cursor: pointer;
+
+  .form-check-input {
+    margin: 0;
+  }
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $brand-600;
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  &:hover {
+    color: $brand-700;
+    text-decoration: underline;
+  }
+}
+
+// On/off toggle built on a checkbox.
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.5rem;
+  color: $ink-700;
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__track {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 1.5rem;
+    border-radius: $radius-pill;
+    background: $ink-300;
+    transition: background 0.2s;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0.1875rem;
+      left: 0.1875rem;
+      width: 1.125rem;
+      height: 1.125rem;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: $shadow-sm;
+      transition: transform 0.2s $ease-out;
+    }
+  }
+
+  input:checked + &__track {
+    background: $success;
+
+    &::after {
+      transform: translateX(1rem);
+    }
+  }
+
+  input:focus-visible + &__track {
+    @include focus-ring;
+  }
+
+  input:disabled + &__track {
+    opacity: 0.5;
+  }
+}
+
+// ---- Manager approval prompt ----------------------------------------------------
+.approval {
+  &__mark {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: $radius;
+    background: rgba($warning, 0.14);
+    color: color.adjust($warning, $lightness: -14%);
+    font-size: 1.25rem;
+  }
+
+  &__who {
+    width: 100%;
+    margin-bottom: 0.875rem;
+  }
+
+  &__pin {
+    height: 3rem;
+    font-size: 1.375rem;
+    letter-spacing: 0.5em;
+    text-align: center;
+  }
+
+  &__none {
+    margin: 0;
+    color: $ink-600;
+    font-size: 0.875rem;
+  }
+}
